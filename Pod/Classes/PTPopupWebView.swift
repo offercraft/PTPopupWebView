@@ -12,6 +12,8 @@ protocol PTPopupWebViewDelegate {
     func close()
 }
 
+public typealias URLChangeCallback = (_ url: URL) -> Void
+
 open class PTPopupWebView : UIView {
     internal var delegate : PTPopupWebViewDelegate?
     
@@ -47,7 +49,9 @@ open class PTPopupWebView : UIView {
     @IBOutlet weak internal var webViewContainer : UIView!
     open fileprivate(set) var webView = WKWebView()
 
-
+    // callback for url changes
+    internal var urlChanged : URLChangeCallback?
+    
     /* Property */
     
     /// Title text
@@ -144,8 +148,13 @@ open class PTPopupWebView : UIView {
         return self
     }
 
-
-
+    /**
+     
+     */
+    public func onURLChanged(_ urlChanged: @escaping URLChangeCallback) -> Self {
+        self.urlChanged = urlChanged;
+        return self
+    }
 
     /// External link patterns (open with iOS system)
     open fileprivate(set) var externalLinkPattern : [String] = []
@@ -358,6 +367,9 @@ open class PTPopupWebView : UIView {
         for button in buttons {
             button.removeObserver(self, forKeyPath: "enabled")
         }
+        
+        // remove callbacks
+        self.urlChanged = nil;
     }
     
     override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -374,6 +386,10 @@ open class PTPopupWebView : UIView {
                     }
                     break;
                 case "URL":
+                    let url = webView.url;
+                    if (self.urlChanged != nil && url != nil) {
+                        self.urlChanged!(url!);
+                    }
                     break;
                 case "load":
                     break;
@@ -576,4 +592,3 @@ public enum PTPopupWebViewExternalLinkPattern : String {
     /// iTunes related links
     case iTunes    = "\\/\\/itunes\\.apple\\.com\\/"
 }
-
