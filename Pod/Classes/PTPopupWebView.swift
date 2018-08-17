@@ -16,6 +16,7 @@ public typealias URLChangeCallback = (_ url: URL) -> Void
 
 open class PTPopupWebView : UIView {
     internal var delegate : PTPopupWebViewDelegate?
+    internal var viewController : PTPopupWebViewController?
     
     /* IBOutlet */
     // Outer Margin (The spacing between frame and contetnt view)
@@ -355,6 +356,8 @@ open class PTPopupWebView : UIView {
         
         // WKNavigationDelegate
         webView.navigationDelegate = self
+        
+        webView.uiDelegate = self
     }
     
     deinit {
@@ -546,6 +549,40 @@ open class PTPopupWebView : UIView {
         }
         
         return width
+    }
+}
+
+extension PTPopupWebView : WKUIDelegate {
+    public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        let alertController = UIAlertController(title: "", message: message, preferredStyle: UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.cancel, handler: nil))
+        
+        let alertWindow = UIWindow(frame: UIScreen.main.bounds)
+        alertWindow.rootViewController = UIViewController()
+        alertWindow.windowLevel = UIWindowLevelAlert + 1;
+        alertWindow.makeKeyAndVisible()
+        alertWindow.rootViewController?.present(alertController, animated: true, completion: nil)
+        
+        completionHandler()
+    }
+    public func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .actionSheet)
+        
+        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action) in
+            completionHandler(true)
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action) in
+            completionHandler(false)
+        }))
+        
+        let alertWindow = UIWindow(frame: UIScreen.main.bounds)
+        alertWindow.rootViewController = UIViewController()
+        alertWindow.windowLevel = UIWindowLevelAlert + 1;
+        alertWindow.makeKeyAndVisible()
+        alertWindow.rootViewController?.present(alertController, animated: true, completion: nil)
+        
     }
 }
 
