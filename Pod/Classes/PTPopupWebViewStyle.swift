@@ -21,7 +21,15 @@ open class PTPopupWebViewStyle {
     open fileprivate(set) var innerMargin : UIEdgeInsets = UIEdgeInsets.zero
     open fileprivate(set) var backgroundColor : UIColor = .white
     open fileprivate(set) var cornerRadius : CGFloat = 8.0
-
+    open fileprivate(set) var setPercentHeight : CGFloat = 0.05
+    
+    // MARK: Content view's property setter
+    /// Content view's corner radius (Default: 0.05)
+    open func setPercentHeight(_ value: CGFloat) -> Self {
+        self.setPercentHeight = value
+        return self
+    }
+    
     // MARK: Content view's property setter
     /// Content view's corner radius (Default: 8.0)
     open func cornerRadius(_ value: CGFloat) -> Self {
@@ -168,7 +176,7 @@ open class PTPopupWebViewControllerStyle : PTPopupWebViewStyle {
         super.init()
         
         let screenBounds = UIScreen.main.bounds
-        let vMargin = screenBounds.height * 0.1
+        let vMargin = screenBounds.height * setPercentHeight;
         let hMargin = screenBounds.width  * 0.05
         outerMargin = UIEdgeInsetsMake(vMargin, hMargin, vMargin, hMargin)
     }
